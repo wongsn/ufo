@@ -1,0 +1,60 @@
+<%- include('header', {title: `Recipe: ${recipe.title}`}); -%>
+  <body>
+    <form action="/sighted" method="POST">
+      <!-- input field for details -->
+      <label for="details">What did you see?</label>
+      <textarea name="text" id="details" />
+
+      <!-- cal field for date time -->
+      <label for="date">When did you see it?</label>
+      <input type="date" name="TIME" id="date" />
+
+      <!-- include geotag  -->
+      <label for="city">Where did you see it?</label>
+      <input
+        type="text"
+        name="city"
+        id="city"
+        aria-placeholder="city of sighting"
+      />
+
+      <!-- include geotag  -->
+      <label for="state">Where did you see it?</label>
+      <input
+        type="text"
+        name="state"
+        id="state"
+        aria-placeholder="state of sighting"
+      />
+
+      <!-- include geotag  -->
+      <label for="shape">What was the shape?</label>
+      <input
+        type="text"
+        name="shape"
+        id="shape"
+        aria-placeholder="shape of sighting"
+      />
+
+      <!-- include geotag  -->
+      <label for="duration">Duration?</label>
+      <input
+        type="text"
+        name="duration"
+        id="duration"
+        aria-placeholder="duration of sighting"
+      />
+
+      <!-- include geotag  -->
+      <label for="summary">Summary</label>
+      <input
+        type="text"
+        name="summary"
+        id="summary"
+        aria-placeholder="summary of sighting"
+      />
+
+      <input type="submit" value="REPORT" />
+    </form>
+  </body>
+<%- include('footer'); -%>

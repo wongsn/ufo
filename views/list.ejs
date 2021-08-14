@@ -1,7 +1,6 @@
 <%- include('header') %> 
 
 <body>
-  
 
 
   <div class="mdc-data-table">
@@ -68,15 +67,7 @@
         </th>
       </tr>
     </thead>
-      <tbody class="mdc-data-table__content">
-        <% for( let index = 0; index < sightings.length; index++ ) { %>
-        <tr class="mdc-data-table__row">
-          <th class="mdc-data-table__cell" scope="row"> <a href="/sightings/<%=index%>"> Sightings <%= index %> </a></th>
-          <td class="mdc-data-table__cell mdc-data-table__cell--numeric">24</td>
-          <td class="mdc-data-table__cell mdc-data-table__cell--numeric">4.0</td>
-          <td class="mdc-data-table__cell">Super tasty</td>
-        </tr>
-        <% } %>
+      <tbody class="mdc-data-table__content" id="data-table-body">
       </tbody>
     </table>
   </div>
@@ -134,25 +125,129 @@
         </div>
       </div>
 
-      <div class="mdc-data-table__pagination-navigation">
-        <div class="mdc-data-table__pagination-total">
-          1‑10 of 100
+      <div class="mdc-data-table__pagination-navigation" >
+        <div class="mdc-data-table__pagination-total" id="pagination-total">
         </div>
-        <button class="mdc-icon-button material-icons mdc-data-table__pagination-button" data-first-page="true" disabled>
-          <div class="mdc-button__icon">first_page</div>
+        <button class="mdc-icon-button material-icons mdc-data-table__pagination-button" data-first-page="true" id="firstpage">
+          
         </button>
-        <button class="mdc-icon-button material-icons mdc-data-table__pagination-button" data-prev-page="true" disabled>
+        <button class="mdc-icon-button material-icons mdc-data-table__pagination-button" data-prev-page="true" id="prevpage">
           <div class="mdc-button__icon">chevron_left</div>
         </button>
-        <button class="mdc-icon-button material-icons mdc-data-table__pagination-button" data-next-page="true">
+        <button class="mdc-icon-button material-icons mdc-data-table__pagination-button" data-next-page="true" id="nextpage">
           <div class="mdc-button__icon">chevron_right</div>
         </button>
-        <button class="mdc-icon-button material-icons mdc-data-table__pagination-button" data-last-page="true">
-          <div class="mdc-button__icon">last_page</div>
+        <button class="mdc-icon-button material-icons mdc-data-table__pagination-button" data-last-page="true" id="lastpage">
         </button>
       </div>
     </div>
   </div>
 </div>
 
+<!-- 
+<script defer src="/static/list.js"></script> -->
+
+<script>
+
+/*
+	1 - Loop Through Array & Access each value
+  2 - Create Table Rows & append to table
+*/
+
+const state = {
+      'querySet': <%= querySet %>,
+      'page': <%= page %>,
+      'rows': <%= rows %>,
+      'window': <%= window %>,
+    };
+
+
+
+buildTable();
+
+function pagination(querySet, page, rows) {
+
+    var trimStart = (page - 1) * rows
+    var trimEnd = trimStart + rows
+
+    var trimmedData = querySet.slice(trimStart, trimEnd)
+
+    var pages = Math.round(querySet.length / rows);
+
+    console.log("paginated", trimmedData)
+    console.log("paginated", pages)
+    return {
+        'querySet': trimmedData,
+        'pages': pages,
+    }
+}
+
+function pageButtons(pages) {
+    var wrapper = document.getElementById('pagination-total')
+
+    wrapper.innerHTML = `<%=page%> of ${pages}`;
+var maxLeft = (state.page - Math.floor(state.window / 2))
+    var maxRight = (state.page + Math.floor(state.window / 2))
+
+    if (maxLeft < 1) {
+        maxLeft = 1
+        maxRight = state.window
+    }
+
+    if (maxRight > pages) {
+        maxLeft = pages - (state.window - 1)
+        
+        if (maxLeft < 1){
+        	maxLeft = 1
+        }
+        maxRight = pages
+    }
+    
+    if (state.page != 1) {
+        document.getElementById('firstpage').innerHTML = `<div class="mdc-button__icon">first_page</div>`;
+    }
+
+    if (state.page != pages) {
+         document.getElementById('lastpage').innerHTML = `<div class="mdc-button__icon">last_page</div>`;
+    }
+
+    const pageEvent = document.querySelector('.page')
+    pageEvent.addEventListener('click', function() {
+        document.getElementById('data-table-body').empty()
+
+        state.page = Number($(this).val())
+
+        buildTable()
+    })
+
+}
+
+
+function buildTable() {
+    var table = document.getElementById(data-table-body);
+    var data = pagination(state.querySet, state.page, state.rows);
+    var myList = data.querySet
+
+    for (var i = 1 in myList) {
+        //Keep in mind we are using "Template Litterals to create rows"
+        var row = `<tr class="mdc-data-table__row">
+                    <th class="mdc-data-table__cell" scope="row"> <a href="/sightings/${myList[i].DateTime}"> ${ myList[i].DateTime } </a></th>
+                    <th class="mdc-data-table__cell" scope="row"> ${ myList[i].Summary } </a></th>
+                    <th class="mdc-data-table__cell" scope="row"> ${ myList[i].Shape } </a></th>
+                    <th class="mdc-data-table__cell" scope="row"> ${ myList[i].Lat } </a></th>
+                    <th class="mdc-data-table__cell" scope="row"> ${ myList[i].Long } </a></th>
+                    <th class="mdc-data-table__cell" scope="row"> ${ myList[i].Country } </a></th>
+                    <th class="mdc-data-table__cell" scope="row"> ${ myList[i].State } </a></th>
+                    <th class="mdc-data-table__cell" scope="row"> ${ myList[i].City } </a></th>
+                  </tr>
+                  `
+        table.append(row)
+    }
+
+    pageButtons(data.page)
+}
+</script>
+
 </body>
+
+<%- include('footer') %> 

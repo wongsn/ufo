@@ -5,7 +5,7 @@ import {
 } from './jsonFileStorage.js';
 
 const app = express();
-const PORT = process.env.NODE_ENV || 3000;
+const PORT = process.env.NODE_ENV || 3004;
 // Override POST requests with query param ?_method=PUT to be PUT requests
 app.use(methodOverride('_method'));
 
@@ -23,7 +23,8 @@ app.get('/sighting', (req, res) => {
 // accept a POST request to create a new sighting
 // transfer to 'saved' landing page with the submitted params in boilerplate
 app.post('/sighted', (req, res) => {
-  add('data.json', 'sightings', req.body, (err, str) => {
+  const input = req.body;
+  add('data.json', 'sightings', input, (err, str) => {
     console.log('added');
     res.render('saved', req.body);
   });
@@ -42,7 +43,13 @@ app.get('/sighting/:index', (req, res) => {
 // render a list of sightings
 app.get('/', (req, res) => {
   read('data.json', (err, jsonObj) => {
-    res.render('list', jsonObj);
+    const state = {
+      querySet: jsonObj.sighting,
+      page: 1,
+      rows: 10,
+      window: 1,
+    };
+    res.render('list', state);
   });
 });
 
@@ -51,7 +58,7 @@ app.get('/', (req, res) => {
 app.get('/sighting/:index/edit', (req, res) => {
   read('data.json', (err, jsObj) => {
     const { index } = req.params;
-    const sighting = jsObj.sightings[index];
+    const sighting = jsObj.sighting[index];
     sighting.index = index;
     const ejsData = { sighting };
     res.render('edit', ejsData);
@@ -70,7 +77,7 @@ app.get('/sighting/:index/edit', (req, res) => {
 app.delete('sightings/:index/delete', (req, res) => {
   const { index } = req.params;
   read('data.json', (err, data) => {
-    data.sightings.splice(index, 1);
+    data.sighting.splice(index, 1);
     write('data.json', data, (err) => {
       res.send('Done');
     });

@@ -33,30 +33,27 @@
               <input class="form-control" type="text" placeholder="Address" id="location" name="location"/>
               <label for="location">Where did you see it?<img class="sb-title-icon" src="https://fonts.gstatic.com/s/i/googlematerialicons/location_pin/v5/24px.svg" alt=""></label>
           </div>
-          
-          <!-- <div style="box-sizing: border-box; display:inline-block;">
-            <div class="form-floating mb-3 half-input-container">
-              <input class="form-control" type="text" placeholder="City" id="locality"/>
-              <label for"locality">Locale</label>
-            </div>
 
-            <div class="form-floating mb-3 half-input-container">
-              <input class="form-control" type="text" placeholder="Country" id="country"/>
-              <label for"country">Country</label>
-            </div>
+          <div class="form-floating mb-3">
+              <input class="form-control" type="text" placeholder="Lat" id="lat" name="lat"/>
+              <label for="lat">Lat</label>
+          </div>
 
+          <div class="form-floating mb-3">
+              <input class="form-control" type="text" placeholder="Long" id="long" name="long"/>
+              <label for="long">Long</label>
           </div>
 
           <div style="box-sizing: border-box; display:inline-block;">
-            <div class="form-floating mb-3 half-input-container">
+            <div class="form-floating mb-3 half-input-container" style="box-sizing: border-box; display:inline-block;">
               <input type="text" class="form-control half-input" placeholder="State/Province" id="administrative_area_level_1"/>
               <label for"administrative_area_level_1">State</label>
             </div>
-            <div class="form-floating mb-3 half-input-container">
-              <input type="text" class="form-control half-input" placeholder="Zip/Postal code" id="postal_code"/>
-              <label for"postal_code">Postal</label>
+            <div class="form-floating mb-3 half-input-container" style="box-sizing: border-box; display:inline-block;">
+              <input class="form-control half-input" type="text" placeholder="Country" id="country"/>
+              <label for"country">Country</label>
             </div>
-          </div> -->
+          </div>
 
 <!-- 
         
@@ -77,7 +74,7 @@
 
 
         
-        <p><button class="btn btn-primary btn-cta" type="submit" form="post" value="report" disabled/> Report </button></p>
+        <p><button class="btn btn-primary btn-cta" id="submitbutton" type="submit" form="post" value="report" disabled/> Report </button></p>
         <div class="progress">
           <div
             class="progress-bar"
@@ -96,56 +93,73 @@
 </div>
 
 
-  <script>
-    const duration = document.getElementById('duration');
-    const rangenumber = document.getElementById('rangenumber');
-    duration.addEventListener('change', () =>     {
-    rangenumber.innerHTML=`> ${Math.round(duration.value / 2)} mins`})
+<script>
+  const duration = document.getElementById('duration');
+  const rangenumber = document.getElementById('rangenumber');
+  duration.addEventListener('change', () =>     {
+  rangenumber.innerHTML=`> ${Math.round(duration.value / 2)} mins`})
 
-    const inputs = document.querySelectorAll("input");
+  const inputs = document.querySelectorAll("input");
+  const pgbar = document.getElementById("progress-bar");
+  const submitbutton = document.getElementById('submitbutton');
 
-    const deductPG = (e) => {
-        const target = e.target;
-        const pgbar = document.getElementById("progress-bar");
-        const currentprogress = pgbar.style.width.match(/\d+/)[0];
-        let checkCap = 0;
-        
-        // all fields are empty on load
-        // remove from progress bar if empty
-        if(target.value == 0 || !(target.value)){
-          const reverse = +currentprogress - Math.ceil(100 / (inputs.length -1));
-          checkCap = reverse < 0 ? 0 : reverse;
-          checkCap < 100 ? pgbar.classList.toggle('bg-success', false) : pgbar.classList.toggle('bg-success', true);
-          pgbar.style.width = `${checkCap}%`;
-          console.log('triggeredreverse')
-
-          target.addEventListener("change", updatePG, true)
-          target.removeEventListener("change", deductPG, true)
+  const deductPG = (e) => {
+      const target = e.target;
+      const currentprogress = pgbar.style.width.match(/\d+/)[0];
+      let checkCap = 0;
+      
+      // all fields are empty on load
+      // remove from progress bar if empty
+      if(target.value == 0 || !(target.value)){
+        const reverse = +currentprogress - Math.ceil(100 / (inputs.length - 2));
+        checkCap = reverse < 0 ? 0 : reverse;
+        if(checkCap < 100) {
+          pgbar.classList.toggle('bg-success', false)
+          submitbutton.disabled = true;
+        } else {
+          pgbar.classList.toggle('bg-success', true);
+          submitbutton.disabled = false;
         }
-    }
+        pgbar.style.width = `${checkCap}%`;
+        console.log('triggeredreverse')
 
-    
-    for (let i = 0; i < inputs.length; i++) {
+        target.addEventListener("change", updatePG, true)
+        target.removeEventListener("change", deductPG, true)
+      }
+  }
+
+  const updatePG = (e) => {
+      const target = e.target;
+      const currentprogress = pgbar.style.width.match(/\d+/)[0];
+      let checkCap = 0;
       
-      
-      inputs[i].addEventListener("change", function updatePG (e) {
-        const target = e.target;
-        const pgbar = document.getElementById("progress-bar");
-        const currentprogress = pgbar.style.width.match(/\d+/)[0];
-        let checkCap = 0;
-        
-          // add to progress bar if filled
-          const nextprogress = +currentprogress + Math.ceil(100 / (inputs.length -1));
-          checkCap = nextprogress > 100 ? 100 : nextprogress;
-          checkCap < 100 ? pgbar.classList.toggle('bg-success', false) : pgbar.classList.toggle('bg-success', true);
-          pgbar.style.width = `${checkCap}%`;
-          console.log('triggeredchange');
-          target.addEventListener("change", deductPG, true)
-          target.removeEventListener("change", updatePG, true)
+        // add to progress bar if filled
+        const nextprogress = +currentprogress + Math.ceil(100 / (inputs.length - 2));
+        checkCap = nextprogress > 100 ? 100 : nextprogress;
+        if(checkCap < 100) {
+          pgbar.classList.toggle('bg-success', false)
+          submitbutton.disabled = true;
+        } else {
+          pgbar.classList.toggle('bg-success', true);
+          submitbutton.disabled = false;
+        }
 
-      }, true)
-
+        pgbar.style.width = `${checkCap}%`;
+        console.log('triggeredchange');
+        target.addEventListener("change", deductPG, true);
+        target.removeEventListener("change", updatePG, true);
     }
-  </script>
+  
+  for (let i = 0; i < inputs.length; i++) {
+    inputs[i].addEventListener('change', updatePG , true)
+  }
+
+</script>
+<script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDcm50m-9y3y24c0TwDc1Ii3LFeTVU2IAs&libraries=places&callback=initMap&channel=GMPSB_addressselection_v1_cABC" async defer></script>
+
+<!-- stylesheet and css for maps -->
+<link rel="stylesheet" href="/static/maps.css">
+<script defer src="/static/maps.js"></script>
+  
 </body>
 <%- include('footer'); -%>

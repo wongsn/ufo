@@ -1,60 +1,151 @@
-<%- include('header', {title: `Recipe: ${recipe.title}`}); -%>
-  <body>
-    <form action="/sighted" method="POST">
-      <!-- input field for details -->
-      <label for="details">What did you see?</label>
-      <textarea name="text" id="details" />
+<%- include('header'); -%>
+<body>
+  <div class="card-container" style="margin-top: 60px">
+    <div class="panel">
+      <div>
+        <form action="/sighted" method="POST" id="post">
+          <div class="form-floating mb-3">
+              <input class="form-control" type="textarea" name="text" id="details" placeholder="details" autofocus required/>
+              <label for="details">What did you see?</label>
+          </div>
 
-      <!-- cal field for date time -->
-      <label for="date">When did you see it?</label>
-      <input type="date" name="TIME" id="date" />
+          <!-- cal field for date time -->
+          <div class="form-floating mb-3">
+            <input class="form-control" type="datetime-local" name="time" id="date" placeholder="when" required/>
+            <label for="date">When did you see it?</label>
+          </div>
 
-      <!-- include geotag  -->
-      <label for="city">Where did you see it?</label>
-      <input
-        type="text"
-        name="city"
-        id="city"
-        aria-placeholder="city of sighting"
-      />
+          <!-- include time  -->
+          <div>
+            <label for="duration">Duration: </label>
+            <p id="rangenumber">0 mins</p>
+            <input value = "0" class="form-range"
+              type="range"
+              name="duration"
+              id="duration"
+              aria-placeholder="duration of sighting"
+            />
+          </div>
 
-      <!-- include geotag  -->
-      <label for="state">Where did you see it?</label>
-      <input
-        type="text"
-        name="state"
-        id="state"
-        aria-placeholder="state of sighting"
-      />
+          <!-- include geotag  -->
+          <!-- input field for details -->
+          <div class="form-floating mb-3">
+              <input class="form-control" type="text" placeholder="Address" id="location" name="location"/>
+              <label for="location">Where did you see it?<img class="sb-title-icon" src="https://fonts.gstatic.com/s/i/googlematerialicons/location_pin/v5/24px.svg" alt=""></label>
+          </div>
+          
+          <!-- <div style="box-sizing: border-box; display:inline-block;">
+            <div class="form-floating mb-3 half-input-container">
+              <input class="form-control" type="text" placeholder="City" id="locality"/>
+              <label for"locality">Locale</label>
+            </div>
 
-      <!-- include geotag  -->
-      <label for="shape">What was the shape?</label>
-      <input
-        type="text"
-        name="shape"
-        id="shape"
-        aria-placeholder="shape of sighting"
-      />
+            <div class="form-floating mb-3 half-input-container">
+              <input class="form-control" type="text" placeholder="Country" id="country"/>
+              <label for"country">Country</label>
+            </div>
 
-      <!-- include geotag  -->
-      <label for="duration">Duration?</label>
-      <input
-        type="text"
-        name="duration"
-        id="duration"
-        aria-placeholder="duration of sighting"
-      />
+          </div>
 
-      <!-- include geotag  -->
-      <label for="summary">Summary</label>
-      <input
-        type="text"
-        name="summary"
-        id="summary"
-        aria-placeholder="summary of sighting"
-      />
+          <div style="box-sizing: border-box; display:inline-block;">
+            <div class="form-floating mb-3 half-input-container">
+              <input type="text" class="form-control half-input" placeholder="State/Province" id="administrative_area_level_1"/>
+              <label for"administrative_area_level_1">State</label>
+            </div>
+            <div class="form-floating mb-3 half-input-container">
+              <input type="text" class="form-control half-input" placeholder="Zip/Postal code" id="postal_code"/>
+              <label for"postal_code">Postal</label>
+            </div>
+          </div> -->
 
-      <input type="submit" value="REPORT" />
-    </form>
-  </body>
+<!-- 
+        
+        <div class="form-floating mb-3">
+
+          <input
+            type="radio"
+            name="shape"
+            id="shape"
+            aria-placeholder="shape of sighting"
+          />
+          <option value="">Circular</option>
+          <option value="">Triangle</option>
+          <option value="">Rectangle</option>
+          <option value="">Morphing</option>
+          <label for="shape">What was the shape?</label>
+        </div> -->
+
+
+        
+        <p><button class="btn btn-primary btn-cta" type="submit" form="post" value="report" disabled/> Report </button></p>
+        <div class="progress">
+          <div
+            class="progress-bar"
+            role="progressbar"
+            style="width: 0%"
+            aria-valuenow="25"
+            aria-valuemin="0"
+            aria-valuemax="100"
+            id="progress-bar"
+          ></div>
+        </div>
+      </form>
+    </div>
+  </div>
+  <div class="map" id="map"></div>
+</div>
+
+
+  <script>
+    const duration = document.getElementById('duration');
+    const rangenumber = document.getElementById('rangenumber');
+    duration.addEventListener('change', () =>     {
+    rangenumber.innerHTML=`> ${Math.round(duration.value / 2)} mins`})
+
+    const inputs = document.querySelectorAll("input");
+
+    const deductPG = (e) => {
+        const target = e.target;
+        const pgbar = document.getElementById("progress-bar");
+        const currentprogress = pgbar.style.width.match(/\d+/)[0];
+        let checkCap = 0;
+        
+        // all fields are empty on load
+        // remove from progress bar if empty
+        if(target.value == 0 || !(target.value)){
+          const reverse = +currentprogress - Math.ceil(100 / (inputs.length -1));
+          checkCap = reverse < 0 ? 0 : reverse;
+          checkCap < 100 ? pgbar.classList.toggle('bg-success', false) : pgbar.classList.toggle('bg-success', true);
+          pgbar.style.width = `${checkCap}%`;
+          console.log('triggeredreverse')
+
+          target.addEventListener("change", updatePG, true)
+          target.removeEventListener("change", deductPG, true)
+        }
+    }
+
+    
+    for (let i = 0; i < inputs.length; i++) {
+      
+      
+      inputs[i].addEventListener("change", function updatePG (e) {
+        const target = e.target;
+        const pgbar = document.getElementById("progress-bar");
+        const currentprogress = pgbar.style.width.match(/\d+/)[0];
+        let checkCap = 0;
+        
+          // add to progress bar if filled
+          const nextprogress = +currentprogress + Math.ceil(100 / (inputs.length -1));
+          checkCap = nextprogress > 100 ? 100 : nextprogress;
+          checkCap < 100 ? pgbar.classList.toggle('bg-success', false) : pgbar.classList.toggle('bg-success', true);
+          pgbar.style.width = `${checkCap}%`;
+          console.log('triggeredchange');
+          target.addEventListener("change", deductPG, true)
+          target.removeEventListener("change", updatePG, true)
+
+      }, true)
+
+    }
+  </script>
+</body>
 <%- include('footer'); -%>

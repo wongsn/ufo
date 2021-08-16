@@ -1,13 +1,17 @@
 import express from 'express';
 import methodOverride from 'method-override';
+import cookieParser from 'cookie-parser';
+import { Grid } from 'gridjs';
 import {
   read, write, add, edit,
 } from './jsonFileStorage.js';
 
 const app = express();
-const PORT = process.env.NODE_ENV || 3004;
+const PORT = process.env.NODE_ENV || 3002;
+
 // Override POST requests with query param ?_method=PUT to be PUT requests
 app.use(methodOverride('_method'));
+app.use(cookieParser());
 
 // enables Express to serve files from a local folder called 'public;
 app.use('/static', express.static('public'));
@@ -43,14 +47,19 @@ app.get('/sighting/:index', (req, res) => {
 // render a list of sightings
 app.get('/', (req, res) => {
   read('data.json', (err, jsonObj) => {
+    const sightingArray = jsonObj.sighting;
     const state = {
-      querySet: jsonObj.sighting,
+      querySet: sightingArray,
       page: 1,
       rows: 10,
       window: 1,
     };
     res.render('list', state);
   });
+});
+
+app.get('/heatmap', (req, res) => {
+  res.render('heatmap');
 });
 
 // render a form to edit a sighting

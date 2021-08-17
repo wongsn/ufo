@@ -1,0 +1,122 @@
+<%- include('header') %> 
+
+<body>
+  <div class="container mt-lg-6 mt-5">
+    <table class="table table-hover">
+      <thead>
+        <tr>
+          <th scope = "col">
+            <!-- <th scope="col"> Actions </th> -->
+            <th scope = "col">DateTime</th>
+            <th scope = "col">Summary</th>
+            <th scope = "col">Shape</th>
+            <th scope = "col">Lat</th>
+            <th scope = "col">Long</th>
+            <th scope ="col">Country</th>
+            <th scope = "col">State</th>
+          </th>
+          
+    </thead>
+      <tbody id="data-table-body">
+        <% for (let i = 0; i < querySet.length; i++){ %>
+          <tr class='clickable-row' onclick="location.href='/sightings/sighted/<%= index-1%>'">
+            <th scope ="row"><%=index+i%></th>
+            <!-- <td scope="row"> 
+              <select id="actions">
+                <a href="/sightings/sighted/<%=index-1%>"><option>View</option></a>
+                <a href="/sightings/sighted/<%=index-1%>/edit"></a><option>Edit</option></a>
+                <a href="/sightings/sighted/<%=index-1%>"></a><option>Delete</option></a>
+              </select> </td> -->
+            <td scope="row"><%=querySet[i].DateTime%> </td>
+            <td scope="row"> <%=querySet[i].Summary%> </a></td>
+            <td scope="row"> <%=querySet[i].Shape%> </a></td>
+            <td scope="row"> <%=querySet[i].lat%> </a></td>
+            <td scope="row"> <%=querySet[i].lng%> </a></td>
+            <td scope="row"><%=querySet[i].Country%> </a></td>
+            <td scope="row"> <%=querySet[i].State%></a></td>
+          </tr>
+        <%}%>
+      </tbody>
+    </table>
+    <nav aria-label="Page navigation example">
+      Showing <%=currentPage%> of <%=totalPages%> pages, <%= totalEntries %> entries 
+      <ul class="pagination justify-content-center">
+        <li class="page-item"><a class="page-link" href="/sightings/1">First</a>
+        <li class="page-item">
+          <% let page = ''; if(+currentPage <= 1){ page = '-'} else { page = +currentPage -1 }%>
+          <a class="page-link" href="/sightings/<%=+currentPage - 3%>" id="prev" tabindex="-1">Previous</a>
+        </li>
+
+        <li class="page-item"><a class="page-link" href="/sightings/<%=page%>"><%=page%> </a></li>
+        <li class="page-item"><a class="page-link" href="#"><%= currentPage %></a></li>
+
+        <% if(+currentPage + 1 > totalPages){ page = '-'} else { page = +currentPage + 1 }%>
+        <li class="page-item"><a class="page-link" href="/sightings/<%=page%>"><%= page%></a></li>
+        <li class="page-item"><a class="page-link" href="/sightings/<%=+currentPage + 3%>">Next</a>
+        <li class="page-item"><a class="page-link" href="/sightings/<%=totalPages%>">Last</a>
+        </li>
+      </ul>
+    </nav>
+  </div>
+
+<!-- 
+<script defer src="/static/list.js"></script> -->
+
+<script>
+
+    //function pagination(querySet, page, rows) {
+    //     var trimStart = (page - 1) * rows
+    //     var trimEnd = trimStart + rows
+    //     var trimmedData = querySet.slice(trimStart, trimEnd)
+    //     var pages = Math.round(querySet.length / rows)
+    //     var wrapper = document.getElementById('pagination-total')
+    //     wrapper.innerHTML = `page of ${pages}` 
+    //      return {
+    //         'querySet': trimmedData,
+    //         'pages': pages,
+    //     }
+    // }
+
+    // let paginated = pagination(querySet, page, rows) 
+
+function pageButtons(pages) {
+    
+    var maxLeft = (state.page - Math.floor(state.window / 2))
+    var maxRight = (state.page + Math.floor(state.window / 2))
+
+    if (maxLeft < 1) {
+        maxLeft = 1
+        maxRight = state.window
+    }
+
+    if (maxRight > pages) {
+        maxLeft = pages - (state.window - 1)
+        
+        if (maxLeft < 1){
+        	maxLeft = 1
+        }
+        maxRight = pages
+    }
+    
+    if (state.page != 1) {
+        document.getElementById('firstpage').innerHTML = `<div class="mdc-button__icon">first_page</div>`;
+    }
+
+    if (state.page != pages) {
+         document.getElementById('lastpage').innerHTML = `<div class="mdc-button__icon">last_page</div>`;
+    }
+
+    const pageEvent = document.querySelector('.mdc-icon-button')
+    pageEvent.addEventListener('click', function() {
+        document.getElementById('data-table-body').empty()
+
+        state.page = Number($(this).val())
+
+        buildTable()
+    })
+}
+</script>
+
+</body>
+
+<%- include('footer') %> 

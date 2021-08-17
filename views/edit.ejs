@@ -1,0 +1,209 @@
+<%- include('header'); -%>
+<body>
+  <div class="container mt-lg-6 mt-5">
+    <div class="card-container">
+      <div class="panel">
+        <div>
+          <form action="/sightings/sighted/<%=index%>?_method=PUT" method="POST" id="post">
+            <div class="form-floating mb-3">
+                <input class="form-control" type="textarea" name="Summary" id="details" placeholder="details" rows="3" value="<%=sighting.Summary%>" autofocus required/>
+                <label for="details">What did you see?</label>
+            </div>
+
+            <!-- cal field for date time -->
+            <div class="form-floating mb-3">
+              <input class="form-control" type="datetime-local" name="DateTime" id="date" placeholder="when" value="<%=sighting.DateTime%>" required/>
+              <label for="date">When did you see it?</label>
+            </div>
+
+            <!-- include duration  -->
+            <div>
+              <label for="duration">Duration: </label>
+              <p id="rangenumber">0 mins</p>
+              <input value = "0" class="form-range"
+                type="range"
+                name="Duration"
+                id="duration"
+                aria-placeholder="duration of sighting"
+              />
+            </div>
+
+            <!-- include geotag  -->
+            <!-- input field for details -->
+            <div class="form-floating mb-3">
+                <input class="form-control" type="text" placeholder="Address" id="location" name="Address"/>
+                <label for="location">Where did you see it?<img class="sb-title-icon" src="https://fonts.gstatic.com/s/i/googlematerialicons/location_pin/v5/24px.svg" alt=""></label>
+            </div>
+
+            <div class="form-floating mb-3">
+                <input class="form-control" type="text" placeholder="Lat" id="lat" name="lat" value="<%=sighting.lat%>" disabled/>
+                <label for="lat">Lat</label>
+            </div>
+
+            <div class="form-floating mb-3">
+                <input class="form-control" type="text" placeholder="Long" id="long" name="lng" value="<%=sighting.lng%>" disabled/>
+                <label for="long">Long</label>
+            </div>
+
+            <div style="box-sizing: border-box; display:inline-block;">
+              <div class="form-floating mb-3 half-input-container" style="box-sizing: border-box; display:inline-block;">
+                <input type="text" class="form-control half-input" placeholder="State/Province" id="administrative_area_level_1" name = "State" value="<%=sighting.State%>"/>
+                <label for"administrative_area_level_1">State</label>
+              </div>
+              <div class="form-floating mb-3 half-input-container" style="box-sizing: border-box; display:inline-block;">
+                <input class="form-control half-input" type="text" placeholder="Country" name="Country" id="country" value="<%=sighting.Country%>"/>
+                <label for"country">Country</label>
+              </div>
+            </div>
+
+  <!-- 
+          
+          <div class="form-floating mb-3">
+
+            <input
+              type="radio"
+              name="shape"
+              id="shape"
+              aria-placeholder="shape of sighting"
+            />
+            <option value="">Circular</option>
+            <option value="">Triangle</option>
+            <option value="">Rectangle</option>
+            <option value="">Morphing</option>
+            <label for="shape">What was the shape?</label>
+          </div> -->
+
+
+          
+          <p><button class="btn btn-primary btn-success btn-cta" id="submitbutton" type="submit" form="post" value="Submit" disabled/> Submit </button></p>
+
+          <div class="progress">
+            <div
+              class="progress-bar"
+              role="progressbar"
+              style="width: 0%"
+              aria-valuenow="25"
+              aria-valuemin="0"
+              aria-valuemax="100"
+              id="progress-bar"
+            ></div>
+          </div>
+          </form>
+        </div>
+      </div>
+      <div class="map" id="map"></div>
+    </div>
+  </div>
+
+
+<script>
+// <!-- Converting dates into Date-Time Local Formats -->
+  var today = new Date();
+  var dd = today.getDate();
+  var mm = today.getMonth()+1; //January is 0 so need to add 1 to make it 1!
+  var yyyy = today.getFullYear();
+  if(dd<10){
+    dd='0'+dd
+  } 
+  if(mm<10){
+    mm='0'+mm
+  } 
+
+  today = yyyy+'-'+mm+'-'+dd;
+  document.getElementById("date").setAttribute("max", today);
+
+// Script for range number depending on range bar update
+  const duration = document.getElementById('duration');
+  const rangenumber = document.getElementById('rangenumber');
+  duration.addEventListener('change', () =>     {
+  rangenumber.innerHTML=`> ${Math.round(duration.value / 2)} mins`})
+
+  // Script for altering changes in pg
+  const inputs = document.querySelectorAll("input");
+  const pgbar = document.getElementById("progress-bar");
+  const submitbutton = document.getElementById('submitbutton');
+
+  let currentprogress = +pgbar.style.width.match(/\d+/)[0];
+  let checkCap = 0;
+ 
+
+  // check if inputs are already filled
+  for (const input in inputs) {
+    if (+input > 0) {
+      currentprogress += Math.ceil(100 / (inputs.length-1));
+    } 
+  }
+
+if (currentprogress >=100){
+  pgbar.style.width =`100%`
+  pgbar.classList.toggle('bg-success', true);
+  submitbutton.disabled = false;
+  submitbutton.classList.toggle('btn-success',true);
+} else {
+  pgbar.style.width = `${currentprogress}%`;
+}
+
+// Actions when user empties field upon change
+const deductPG = (e) => {
+  const target = e.target;
+    // all fields are empty on load
+    // remove from progress bar if empty
+    if(target.value == 0 || !(target.value)){
+      currentprogress -= Math.round(100 / (inputs.length - 1));
+      
+      if(currentprogress < 100) {
+        pgbar.classList.toggle('bg-success', false)
+        submitbutton.disabled = true;
+        submitbutton.classList.toggle('btn-success')
+      } else {
+        pgbar.classList.toggle('bg-success', true);
+        submitbutton.disabled = false;
+        submitbutton.classList.toggle('btn-success')
+      }
+      pgbar.style.width = `${currentprogress}%`;
+      console.log('triggeredreverse')
+
+      target.addEventListener("change", updatePG, true)
+      target.removeEventListener("change", deductPG, true)
+    }
+}
+
+// Actions when user commits field upon change
+const updatePG = (e) => {
+  const target = e.target;
+    // add to progress bar if filled
+    currentprogress += Math.round(100 / (inputs.length - 1));
+   
+    if(currentprogress < 100) {
+      pgbar.classList.toggle('bg-success', false)
+      submitbutton.disabled = true;
+    } else {
+      pgbar.classList.toggle('bg-success', true);
+      submitbutton.disabled = false;
+    }
+
+    pgbar.style.width = `${currentprogress}%`;
+    console.log('triggeredchange');
+    target.addEventListener("change", deductPG, true);
+    target.removeEventListener("change", updatePG, true);
+}
+  
+for (let i = 0; i < inputs.length; i++) {
+  if(+inputs[i]>0){
+    inputs[i].addEventListener('change', deductPG , true)
+  } else {
+    inputs[i].addEventListener('change', deductPG , true)
+  }
+}
+
+</script>
+
+<!-- Google Maps API -->
+<script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDcm50m-9y3y24c0TwDc1Ii3LFeTVU2IAs&libraries=places&callback=initMap&channel=GMPSB_addressselection_v1_cABC" async defer></script>
+
+<!-- stylesheet and css for maps -->
+<link rel="stylesheet" href="/static/maps.css">
+<script defer src="/static/maps.js"></script>
+  
+</body>
+<%- include('footer'); -%>

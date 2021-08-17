@@ -4,15 +4,15 @@
     <div class="card-container">
       <div class="panel">
         <div>
-          <form action="/create" method="POST" id="post">
+          <form action="/sightings/sighted/<%=index%>?_method=PUT" method="POST" id="post">
             <div class="form-floating mb-3">
-                <input class="form-control" type="textarea" name="Summary" id="details" placeholder="details" rows="3" autofocus required/>
+                <input class="form-control" type="textarea" name="Summary" id="details" placeholder="details" rows="3" value="<%=sighting.Summary%>" autofocus required/>
                 <label for="details">What did you see?</label>
             </div>
 
             <!-- cal field for date time -->
             <div class="form-floating mb-3">
-              <input class="form-control" type="datetime-local" name="DateTime" id="date" placeholder="when" required/>
+              <input class="form-control" type="datetime-local" name="DateTime" id="date" placeholder="when" value="<%=sighting.DateTime%>" required/>
               <label for="date">When did you see it?</label>
             </div>
 
@@ -25,34 +25,33 @@
                 name="Duration"
                 id="duration"
                 aria-placeholder="duration of sighting"
-                required
               />
             </div>
 
             <!-- include geotag  -->
             <!-- input field for details -->
             <div class="form-floating mb-3">
-                <input class="form-control" type="text" placeholder="Address" id="location" name="Address" required/>
+                <input class="form-control" type="text" placeholder="Address" id="location" name="Address"/>
                 <label for="location">Where did you see it?<img class="sb-title-icon" src="https://fonts.gstatic.com/s/i/googlematerialicons/location_pin/v5/24px.svg" alt=""></label>
             </div>
 
             <div class="form-floating mb-3">
-                <input class="form-control" type="text" placeholder="Lat" id="lat" name="lat" readonly/>
+                <input class="form-control" type="text" placeholder="Lat" id="lat" name="lat" value="<%=sighting.lat%>" disabled/>
                 <label for="lat">Lat</label>
             </div>
 
             <div class="form-floating mb-3">
-                <input class="form-control" type="text" placeholder="Long" id="long" name="lng" readonly/>
+                <input class="form-control" type="text" placeholder="Long" id="long" name="lng" value="<%=sighting.lng%>" disabled/>
                 <label for="long">Long</label>
             </div>
 
             <div style="box-sizing: border-box; display:inline-block;">
               <div class="form-floating mb-3 half-input-container" style="box-sizing: border-box; display:inline-block;">
-                <input type="text" class="form-control half-input" placeholder="State/Province" id="administrative_area_level_1" name="State" required/>
+                <input type="text" class="form-control half-input" placeholder="State/Province" id="administrative_area_level_1" name = "State" value="<%=sighting.State%>"/>
                 <label for"administrative_area_level_1">State</label>
               </div>
               <div class="form-floating mb-3 half-input-container" style="box-sizing: border-box; display:inline-block;">
-                <input class="form-control half-input" type="text" placeholder="Country" id="country" name="Country" required/>
+                <input class="form-control half-input" type="text" placeholder="Country" name="Country" id="country" value="<%=sighting.Country%>"/>
                 <label for"country">Country</label>
               </div>
             </div>
@@ -76,7 +75,7 @@
 
 
           
-          <p><button class="btn btn-primary btn-success btn-cta" id="submitbutton" type="submit" form="post" value="create" disabled/> Submit </button></p>
+          <p><button class="btn btn-primary btn-success btn-cta" id="submitbutton" type="submit" form="post" value="Submit" disabled/> Submit </button></p>
 
           <div class="progress">
             <div
@@ -126,6 +125,23 @@
 
   let currentprogress = +pgbar.style.width.match(/\d+/)[0];
   let checkCap = 0;
+ 
+
+  // check if inputs are already filled
+  for (const input in inputs) {
+    if (+input > 0) {
+      currentprogress += Math.ceil(100 / (inputs.length-1));
+    } 
+  }
+
+if (currentprogress >=100){
+  pgbar.style.width =`100%`
+  pgbar.classList.toggle('bg-success', true);
+  submitbutton.disabled = false;
+  submitbutton.classList.toggle('btn-success',true);
+} else {
+  pgbar.style.width = `${currentprogress}%`;
+}
 
 // Actions when user empties field upon change
 const deductPG = (e) => {
@@ -133,7 +149,7 @@ const deductPG = (e) => {
     // all fields are empty on load
     // remove from progress bar if empty
     if(target.value == 0 || !(target.value)){
-      currentprogress -= Math.round(100 / (inputs.length - 2));
+      currentprogress -= Math.round(100 / (inputs.length - 1));
       
       if(currentprogress < 100) {
         pgbar.classList.toggle('bg-success', false)
@@ -156,7 +172,7 @@ const deductPG = (e) => {
 const updatePG = (e) => {
   const target = e.target;
     // add to progress bar if filled
-    currentprogress += Math.round(100 / (inputs.length - 2));
+    currentprogress += Math.round(100 / (inputs.length - 1));
    
     if(currentprogress < 100) {
       pgbar.classList.toggle('bg-success', false)
@@ -176,9 +192,10 @@ for (let i = 0; i < inputs.length; i++) {
   if(+inputs[i]>0){
     inputs[i].addEventListener('change', deductPG , true)
   } else {
-    inputs[i].addEventListener('change', updatePG , true)
+    inputs[i].addEventListener('change', deductPG , true)
   }
 }
+
 </script>
 
 <!-- Google Maps API -->

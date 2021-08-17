@@ -1,15 +1,53 @@
- <body></body>
-    <div id="floating-panel">
+ <%- include('header') %> 
+ <body>
+   <div class="container" style="visibility:hidden">
+
+    <% querySet.forEach((sighting, index) => { %> 
+      <div id="t<%=index%>"><%=sighting.lat %></div>
+      <div id="g<%=index%>"><%=sighting.lng%> </div>
+      <% console.log('done') %>
+    <% }) %>
+
+</div>
+  <div class="container mt-lg-6 mt-5" >
+    <div id="floating-panel" style="margin-top: 70px;">
       <button id="toggle-heatmap">Toggle Heatmap</button>
       <button id="change-gradient">Change gradient</button>
       <button id="change-radius">Change radius</button>
       <button id="change-opacity">Change opacity</button>
     </div>
     <div id="map"></div>
-<script defer src="/static/heatmap.js"></script>
+  </div>
+
+  
 
 <script async
     src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDcm50m-9y3y24c0TwDc1Ii3LFeTVU2IAs&libraries=visualization&callback=initMap">
+</script>
+
+<script src="/static/heatmap.js"></script>
+<script defer>
+  document.addEventListener('load', ()=>{
+    let mapArray = [];
+    function getPoints() {
+      
+      for(let i=0; i<1000;i++){
+        const latc = document.getElementById(`t${i}`).innerHTML;
+        const lngc = document.getElementById(`g${i}`).innerHTML;
+        mapArray.push(new google.maps.LatLng(`${latc}, ${lngc}`));
+      }
+        return mapArray;
+    };
+
+    console.log(mapArray)
+    
+    heatmap = new google.maps.visualization.HeatmapLayer({
+      data: getPoints(),
+    });
+
+    heatmap.setMap(map);
+  }
+)
 </script>
 
 <style>/* Always set the map height explicitly to define the size of the div

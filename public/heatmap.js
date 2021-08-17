@@ -1,32 +1,9 @@
 // This example requires the Visualization library. Include the libraries=visualization
 // parameter when you first load the API. For example:
 // <script src="https://maps.googleapis.com/maps/api/js?key=YOUR_API_KEY&libraries=visualization">
+
 let map; let
   heatmap;
-
-function initMap() {
-  map = new google.maps.Map(document.getElementById('map'), {
-    zoom: 3,
-    center: { lat: 37.775, lng: -122.434 },
-    mapTypeId: 'satellite',
-  });
-  heatmap = new google.maps.visualization.HeatmapLayer({
-    data: getPoints(),
-    map,
-  });
-  document
-    .getElementById('toggle-heatmap')
-    .addEventListener('click', toggleHeatmap);
-  document
-    .getElementById('change-gradient')
-    .addEventListener('click', changeGradient);
-  document
-    .getElementById('change-opacity')
-    .addEventListener('click', changeOpacity);
-  document
-    .getElementById('change-radius')
-    .addEventListener('click', changeRadius);
-}
 
 const styles = {
   retro: [
@@ -141,6 +118,36 @@ const styles = {
   ],
 };
 
+function getPoints() {
+  // const mapArray = [];
+  //     for (const each in <%=querySet.sighting%>) {
+  //       mapArray.push(new google.maps.LatLng(each.lat, each.lng));
+  //     }
+  //   return mapArray;
+  // };
+  return [
+    new google.maps.LatLng(37.782551, -122.445368),
+    new google.maps.LatLng(37.782745, -122.444586),
+    new google.maps.LatLng(37.782842, -122.443688),
+    new google.maps.LatLng(37.782919, -122.442815),
+    new google.maps.LatLng(37.782992, -122.442112),
+    new google.maps.LatLng(37.7831, -122.441461),
+  ];
+}
+
+const sanFrancisco = new google.maps.LatLng(37.774546, -122.433523);
+
+map = new google.maps.Map(document.getElementById('map'), {
+  center: sanFrancisco,
+  zoom: 13,
+  mapTypeId: 'satellite',
+});
+
+heatmap = new google.maps.visualization.HeatmapLayer({
+  data: getPoints(),
+});
+heatmap.setMap(map);
+
 map.setOptions({ styles: styles.retro });
 
 function toggleHeatmap() {
@@ -173,16 +180,4 @@ function changeRadius() {
 
 function changeOpacity() {
   heatmap.set('opacity', heatmap.get('opacity') ? null : 0.2);
-}
-
-// Heatmap data: 500 Points
-function getPoints() {
-  return [
-    new google.maps.LatLng(37.782551, -122.445368),
-    new google.maps.LatLng(37.782745, -122.444586),
-    new google.maps.LatLng(37.782842, -122.443688),
-    new google.maps.LatLng(37.782919, -122.442815),
-    new google.maps.LatLng(37.782992, -122.442112),
-    new google.maps.LatLng(37.7831, -122.441461),
-  ];
 }

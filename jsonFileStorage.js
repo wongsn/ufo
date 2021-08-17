@@ -108,10 +108,10 @@ export function add(filename, key, input, callback) {
       }
 
       // Add input element to target array
-        jsonContentObj[key].push(input);
+      jsonContentObj[key].push(input);
     },
     // Pass callback to edit to be called after edit completion
-    callback
+    callback,
   );
 }
 
@@ -132,9 +132,9 @@ export function add(filename, key, input, callback) {
 //   }
 // );
 
-export const remove = (filename,key,index,callback) => {
+export const remove = (filename, key, index, callback) => {
 
-}
+};
 
 /**
  * Edit the properties of an element in an array in JSON
@@ -155,6 +155,6 @@ export const remove = (filename,key,index,callback) => {
 //   }
 // );
 
-export const editOneElement = (filename,key,index,payload,callback) => {
+export const editOneElement = (filename, key, index, payload, callback) => {
 
-}
+};

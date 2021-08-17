@@ -4,13 +4,34 @@ let map;
 
 function initMap() {
   geocoder = new google.maps.Geocoder();
+
+  const latValue = +document.getElementById('lat').value;
+  const lngValue = +document.getElementById('long').value;
+  let defaultLocation;
+
+  if (latValue !== 0 && lngValue !== 0) {
+    defaultLocation = { lat: latValue, lng: lngValue };
+  } else {
+    defaultLocation = { lat: 37.2431, lng: -115.7930 };
+  }
+
+  geocoder
+    .geocode({ location: defaultLocation })
+    .then((response) => {
+      if (response.results[0]) {
+        document.getElementById('location').value = response.results[0].formatted_address;
+      } else {
+        window.alert('No results found');
+      }
+    })
+    .catch((e) => window.alert(`Geocoder failed due to: ${e}`));
+
   const componentForm = [
     'location',
     'administrative_area_level_1',
     // 'country',
   ];
 
-  const defaultLocation = { lat: 37.2431, lng: -115.7930 };
   map = new google.maps.Map(document.getElementById('map'), {
     zoom: 13,
     center: defaultLocation,
@@ -134,7 +155,7 @@ function initMap() {
   };
 
   map.setOptions({ styles: styles.retro });
-  const image = '../static/ufo.png';
+  const image = '/static/ufo.png';
   const marker = new google.maps.Marker({
     position: defaultLocation, map, draggable: true, icon: image,
   });
@@ -179,8 +200,8 @@ function initMap() {
         document.getElementById(component).value = getAddressComp(component);
 
         const latlong = JSON.stringify(marker.getPosition());
-        const latvalue = latlong.match(/\-?\d*\.\d*/g)[0];
-        const longvalue = latlong.match(/\-?\d*\.\d*/g)[1];
+        const latvalue = latlong.match(/-?\d*\.\d*/g)[0];
+        const longvalue = latlong.match(/-?\d*\.\d*/g)[1];
         document.getElementById('lat').value = latvalue;
         document.getElementById('long').value = longvalue;
       }
@@ -201,8 +222,8 @@ function initMap() {
         document.getElementById('location').value = responses[0].formatted_address;
         console.log(responses);
         const latlong = JSON.stringify(marker.getPosition());
-        const latvalue = latlong.match(/\-?\d*\.\d*/g)[0];
-        const longvalue = latlong.match(/\-?\d*\.\d*/g)[1];
+        const latvalue = latlong.match(/-?\d*\.\d*/g)[0];
+        const longvalue = latlong.match(/-?\d*\.\d*/g)[1];
         document.getElementById('lat').value = latvalue;
         document.getElementById('long').value = longvalue;
       } else {

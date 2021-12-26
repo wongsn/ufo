@@ -19,7 +19,7 @@
     </thead>
       <tbody id="data-table-body">
         <% for (let i = 0; i < querySet.length; i++){ %>
-          <tr class='clickable-row' onclick="location.href='/sightings/sighted/<%= index-1%>'">
+          <tr class='clickable-row' onclick="location.href='/sightings/sighted/<%=i + index -1%>'">
             <th scope ="row"><%=index+i%></th>
             <!-- <td scope="row"> 
               <select id="actions">

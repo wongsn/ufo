@@ -6,7 +6,7 @@ import {
 } from './jsonFileStorage.js';
 
 const app = express();
-const PORT = process.env.NODE_ENV || 3002;
+const PORT = 3003;
 
 // Override POST requests with query param ?_method=PUT to be PUT requests
 app.use(methodOverride('_method'));
@@ -20,6 +20,16 @@ app.set('view engine', 'ejs');
 app.use(express.urlencoded({ extended: false }));
 
 app.get('/', (req, res) => {
+  // // visits cookie
+  // let visits = 0;
+  // // check if it's not the first time a request has been made
+  // if (req.cookies.visits) {
+  //   visits = Number(req.cookies.visits); // get the value from the request
+  // }
+  // // set a new value of the cookie
+  // visits += 1;
+  // response.cookie('visits', visits); // set a new value to send back
+
   res.render('home');
 });
 
@@ -34,10 +44,13 @@ app.get('/random', (req, res) => {
 app.get('/heatmap', (req, res) => {
   read('data.json', (err, jsonObj) => {
     const sightingArray = jsonObj.sighting;
-    const state = {
-      querySet: sightingArray,
-    };
-    res.render('heatmap', state);
+
+    const mapArray = [];
+    for (let i = 0; i < sightingArray.length; i++) {
+      mapArray.push([sightingArray[i].lat, sightingArray[i].lng]);
+    }
+
+    res.render('heatmap', { mapArray });
   });
 });
 

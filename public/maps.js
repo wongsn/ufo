@@ -235,5 +235,8 @@ function initMap() {
   google.maps.event.addListener(marker, 'dragend', () => {
     geocodePosition(marker.getPosition());
     map.setCenter(marker.getPosition());
+
+    // forces an event into the element
+    document.getElementById('location').dispatchEvent(new Event('change'));
   });
 }
